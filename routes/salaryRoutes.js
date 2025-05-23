@@ -1,0 +1,1 @@
+// salaryRoutes.js

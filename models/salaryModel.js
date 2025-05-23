@@ -1,0 +1,1 @@
+// salaryModel.js
