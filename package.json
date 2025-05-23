@@ -1,1 +1,21 @@
-// package.json
+{
+    "name": "hrms-backend",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "@azure/cosmos": "^4.4.1",
+        "bcrypt": "^6.0.0",
+        "bcryptjs": "^2.4.3",
+        "cors": "^2.8.5",
+        "dotenv": "^16.5.0",
+        "express": "^4.21.2",
+        "jsonwebtoken": "^9.0.2"
+    },
+    "description": "// README.md",
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
