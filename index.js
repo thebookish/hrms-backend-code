@@ -19,7 +19,7 @@ connectCosmosDB();
 
 // Routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/employees', employeeRoutes);
+app.use('/api/employees', employeeRoutes);
 
 // Error Handling
 app.use(errorHandler);
