@@ -5,6 +5,7 @@ const cors = require('cors');
 const { connectCosmosDB } = require('./config/cosmosClient');
 const authRoutes = require('./routes/authRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
+const userRoutes = require('./routes/userRoute');
 const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
@@ -20,12 +21,14 @@ connectCosmosDB();
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
+app.use('/api/users', userRoutes);
 
 // Error Handling
 app.use(errorHandler);
 
 // Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(5000, '0.0.0.0', () => {
+  console.log("Server running on http://0.0.0.0:5000");
 });
+
