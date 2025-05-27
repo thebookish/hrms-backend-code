@@ -5,6 +5,7 @@ const cors = require('cors');
 const { connectCosmosDB } = require('./config/cosmosClient');
 const authRoutes = require('./routes/authRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
+const leaveRoutes = require('./routes/leaveRoutes');
 const userRoutes = require('./routes/userRoute');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -22,6 +23,7 @@ connectCosmosDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/leaves', leaveRoutes)
 
 // Error Handling
 app.use(errorHandler);

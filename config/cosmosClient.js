@@ -11,7 +11,7 @@ const connectCosmosDB = async () => {
       
   database = client.database(process.env.COSMOS_DB_DATABASE);
 
-  const containerNames = ['Users', 'Employees'];
+  const containerNames = ['Users', 'Employees', 'Leaves'];
   for (const name of containerNames) {
     containers[name] = database.container(name);
   }

@@ -1,5 +1,5 @@
 // controllers/userController.js
-const { findUserByEmail, updateUserProfile } = require('../models/userModel');
+const { findUserByEmail, updateUserProfile, updateUserProfilePic } = require('../models/userModel');
 
 const updateProfile = async (req, res, next) => {
   try {
@@ -55,6 +55,20 @@ const getUserByEmail = async (req, res, next) => {
     next(err);
   }
 };
+const updateProfilePic = async (req, res, next) => {
+  try {
+    const email = req.query; 
+    const file = req.file;
 
+    if (!file) return res.status(400).json({ message: 'No file uploaded' });
 
-module.exports = { getUserByEmail , updateProfile};
+    const imagePath = `/uploads/profile_pics/${file.filename}`;
+
+    await updateUserProfilePic(email, imagePath);
+    res.json({ message: 'Profile picture updated', imageUrl: imagePath });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getUserByEmail , updateProfile, updateProfilePic};

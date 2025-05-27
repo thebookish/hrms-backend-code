@@ -2,11 +2,11 @@
 const { getContainer } = require('../config/cosmosClient');
 const container = () => getContainer('Leaves');
 
-const createLeaveRequest = async (leave) => {
-  leave.status = 'pending';
-  leave.requestedAt = new Date().toISOString();
-  const { resource } = await container().items.create(leave);
-  return resource;
+const createLeaveRequest = async (leaveData) => {
+  const id = `${leaveData.email}-${Date.now()}`;
+  const newLeave = { id, ...leaveData };
+  await container().items.create(newLeave);
+  return newLeave;
 };
 
 const getAllLeaveRequests = async () => {
@@ -16,11 +16,11 @@ const getAllLeaveRequests = async () => {
   return resources;
 };
 
-const getLeaveRequestsByEmployeeId = async (employeeId) => {
+const getLeaveRequestsByEmployeeId = async (email) => {
   const { resources } = await container().items
     .query({
-      query: 'SELECT * FROM c WHERE c.employeeId = @employeeId ORDER BY c.requestedAt DESC',
-      parameters: [{ name: '@employeeId', value: employeeId }],
+      query: 'SELECT * FROM c WHERE c.email = @email ORDER BY c.requestedAt DESC',
+      parameters: [{ name: '@email', value: email }],
     })
     .fetchAll();
   return resources;

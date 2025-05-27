@@ -2,17 +2,17 @@
 const express = require('express');
 const router = express.Router();
 const {
-  submitLeaveRequest,
-  viewOwnLeaves,
   viewAllLeaves,
   approveLeave,
   rejectLeave,
+  applyLeave,
+  getLeaves,
 } = require('../controllers/leaveController');
-const { protect, isAdmin } = require('../middleware/authMiddleware');
+const { authenticate,protect, isAdmin } = require('../middleware/authMiddleware');
 
 // Employee-only
-router.post('/request', protect, submitLeaveRequest);
-router.get('/my-leaves', protect, viewOwnLeaves);
+router.post('/request', authenticate, applyLeave);
+router.get('/my-leaves', protect, getLeaves);
 
 // Admin-only
 router.get('/', protect, isAdmin, viewAllLeaves);

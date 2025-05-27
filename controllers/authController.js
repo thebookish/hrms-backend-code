@@ -16,6 +16,7 @@ const register = async (req, res, next) => {
       position='',
       department='',
       joinDate='', // e.g. "2024-01-10"
+      profilePic='',
       role = 'employee' // default role
     } = req.body;
 
@@ -32,6 +33,7 @@ const register = async (req, res, next) => {
       position,
       department,
       joinDate,
+      profilePic,
       role,
     });
 
@@ -45,6 +47,7 @@ const register = async (req, res, next) => {
         position: newUser.position,
         department: newUser.department,
         joinDate: newUser.joinDate,
+        profilePic: newUser.profilePic,
         role: newUser.role,
       }
     });

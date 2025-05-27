@@ -5,26 +5,53 @@ const {
     getLeaveRequestsByEmployeeId,
     updateLeaveStatus,
   } = require('../models/leaveModel');
-  
-  const submitLeaveRequest = async (req, res, next) => {
+  const { getContainer } = require('../config/cosmosClient');
+  const container = () => getContainer('Leaves');
+  const applyLeave = async (req, res, next) => {
     try {
-      const { reason, startDate, endDate } = req.body;
-      const leave = await createLeaveRequest({
-        employeeId: req.user.id,
+      const { email, type, fromDate, toDate, reason, status = 'Pending' } = req.body;
+  
+      if (!email || !type || !fromDate || !toDate || !reason) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+  
+      const leaveData = {
+        email,
+        type,
+        fromDate,
+        toDate,
         reason,
-        startDate,
-        endDate,
-      });
-      res.status(201).json({ message: 'Leave request submitted', leave });
+        status,
+        requestedAt: new Date().toISOString()
+      };
+  
+      const newLeave = await createLeaveRequest(leaveData);
+  
+      res.status(201).json({ message: 'Leave request submitted', leave: newLeave });
     } catch (err) {
       next(err);
     }
   };
   
-  const viewOwnLeaves = async (req, res, next) => {
+  const getLeaves = async (req, res, next) => {
     try {
-      const leaves = await getLeaveRequestsByEmployeeId(req.user.id);
-      res.json(leaves);
+      const { email } = req.query;
+  
+      let query;
+      let parameters = [];
+  
+      if (email) {
+        query = 'SELECT * FROM c WHERE c.email = @email ORDER BY c.createdAt DESC';
+        parameters.push({ name: '@email', value: email });
+      } else {
+        query = 'SELECT * FROM c ORDER BY c.createdAt DESC';
+      }
+  
+      const { resources } = await container().items
+        .query({ query, parameters })
+        .fetchAll();
+  
+      res.status(200).json(resources);
     } catch (err) {
       next(err);
     }
@@ -58,8 +85,8 @@ const {
   };
   
   module.exports = {
-    submitLeaveRequest,
-    viewOwnLeaves,
+    applyLeave,
+    getLeaves,
     viewAllLeaves,
     approveLeave,
     rejectLeave,
