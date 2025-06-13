@@ -21,6 +21,27 @@ const updateUserProfile = async (email, updates) => {
 
   return user;
 };
+const updateUserProfilePic = async (emailObj, imagePath) => {
+  const email = typeof emailObj === 'object' ? emailObj.email : emailObj;
+
+  console.log(email);
+
+  const { resources } = await userContainer().items
+    .query({
+      query: 'SELECT * FROM c WHERE c.email = @email',
+      parameters: [{ name: '@email', value: email }],
+    })
+    .fetchAll();
+
+  const user = resources[0];
+  console.log(user);
+  if (!user) throw new Error('User not found');
+
+  user.profilePic = imagePath;
+
+  await userContainer().item(user.id, user.email).replace(user);
+  return user;
+};
 
 const findUserByEmail = async (email) => {
   const { resources } = await userContainer().items
@@ -102,4 +123,4 @@ const updatePassword = async (email, hashed) => {
   }
 };
 
-module.exports = { findUserByEmail, updateUserProfile, createUser, setResetOtp , findUserByOtp, setResetToken,updatePassword };
+module.exports = { findUserByEmail, updateUserProfile,updateUserProfilePic , createUser, setResetOtp , findUserByOtp, setResetToken,updatePassword };

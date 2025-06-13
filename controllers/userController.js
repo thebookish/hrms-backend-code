@@ -36,10 +36,13 @@ const getUserByEmail = async (req, res, next) => {
       position = '',
       department = '',
       joinDate = '',
+      profilePic='',
       notifications = [],
       role,
     } = user;
-
+    const profilePicUrl = profilePic
+    ? `http://10.0.2.2:5000${profilePic}`
+    : '';
     res.status(200).json({
       id,
       name,
@@ -48,6 +51,7 @@ const getUserByEmail = async (req, res, next) => {
       position,
       department,
       joinDate,
+      profilePic:profilePicUrl,
       notifications,
       role,
     });
