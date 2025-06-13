@@ -2,7 +2,6 @@
 const {
     getPendingEmployees,
     getApprovedEmployees,
-    getEmployeeByEmail,
     createEmployee,
     updateEmployee,
   } = require('../models/employeeModel');
@@ -78,8 +77,8 @@ const {
         jobType, bank, salary,
       } = req.body;
   
-      // const passportFile = req.files['passport']?.[0];
-      // const sponsorFile = req.files['sponsor']?.[0];
+      const passportFile = req.files['passport']?.[0];
+      const sponsorFile = req.files['sponsor']?.[0];
   
       const employeeData = {
         fullName,
@@ -97,8 +96,8 @@ const {
         jobType,
         bank,
         salary,
-        // passportPath: passportFile ? `/uploads/employees/${passportFile.filename}` : null,
-        // sponsorPath: sponsorFile ? `/uploads/employees/${sponsorFile.filename}` : null,
+        passportPath: passportFile ? `/uploads/employees/${passportFile.filename}` : null,
+        sponsorPath: sponsorFile ? `/uploads/employees/${sponsorFile.filename}` : null,
       };
   
       const employee = await createEmployee(employeeData);
@@ -111,7 +110,8 @@ const {
   
   const editEmployee = async (req, res, next) => {
     try {
-      const employee = await updateEmployee(req.params.id, req.body);
+      const { email } = req.query;
+      const employee = await updateEmployee(email, req.body);
       res.json({ message: 'Employee updated', employee });
     } catch (err) {
       next(err);
@@ -126,6 +126,8 @@ const {
       next(err);
     }
   };
+
+  
   
   module.exports = {
     listPendingEmployees,
