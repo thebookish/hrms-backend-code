@@ -55,7 +55,8 @@ const getEmployeeByEmail = async (req, res, next) => {
 
     return res.status(200).json(employeeData);
   } catch (err) {
-    next(err);
+    // next(err);
+    console.log('isuee: '+err);
   }
 };
 
@@ -75,7 +76,8 @@ const createEmployee = async (employee) => {
 };
 
 const updateEmployee = async (email, data) => {
-  const existing = await getEmployeeByEmail(email);
+  // console.log('eailllll: '+email);
+  const existing = await findEmployeeByEmail(email);
   if (!existing) throw new Error('Employee not found');
   const updated = { ...existing, ...data };
   const { resource } = await container().items.upsert(updated);

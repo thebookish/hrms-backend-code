@@ -16,7 +16,7 @@ router.get('/my-leaves', protect, getLeaves);
 
 // Admin-only
 router.get('/', protect, isAdmin, viewAllLeaves);
-router.patch('/:id/approve', protect, isAdmin, approveLeave);
-router.patch('/:id/reject', protect, isAdmin, rejectLeave);
+router.put('/approve', protect, isAdmin, approveLeave);
+router.put('/reject', protect, isAdmin, rejectLeave);
 
 module.exports = router;
