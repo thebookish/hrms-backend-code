@@ -7,6 +7,8 @@ const authRoutes = require('./routes/authRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
 const userRoutes = require('./routes/userRoute');
+const taskRoutes = require('./routes/taskRoutes');
+const salaryRoutes = require('./routes/salaryRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
@@ -26,6 +28,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/leaves', leaveRoutes)
+app.use('/api/tasks', taskRoutes);
+app.use('/api/salary-info', salaryRoutes);
 
 // Error Handling
 app.use(errorHandler);

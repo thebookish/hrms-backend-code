@@ -1,18 +1,15 @@
-// salaryRoutes.js
+// routes/salaryRoutes.js
 const express = require('express');
-const router = express.Router();
 const {
-  viewOwnSalaryHistory,
-  viewAllSalaries,
-  updateSalary,
+  addOrUpdateSalary,
+  getSalary,
+  deleteSalary,
 } = require('../controllers/salaryController');
-const { protect, isAdmin } = require('../middleware/authMiddleware');
 
-// Employee route
-router.get('/my-history', protect, viewOwnSalaryHistory);
+const router = express.Router();
 
-// Admin routes
-router.get('/', protect, isAdmin, viewAllSalaries);
-router.post('/', protect, isAdmin, updateSalary);
+router.post('/add-salary', addOrUpdateSalary);
+router.get('/get-salary', getSalary);
+router.delete('/delete-salary', deleteSalary);
 
 module.exports = router;
