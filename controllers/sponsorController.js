@@ -1,63 +1,77 @@
-// sponsorController.js
+// controllers/sponsorController.js
+
+const { getContainer } = require('../config/cosmosClient');
 const {
-    getAllSponsors,
-    getSponsorById,
-    createSponsor,
-    updateSponsor,
-    deactivateSponsor,
-  } = require('../models/sponsorModel');
-  
-  const listSponsors = async (req, res, next) => {
-    try {
-      const sponsors = await getAllSponsors();
-      res.json(sponsors);
-    } catch (err) {
-      next(err);
+  getSponsorByEmail,
+  updateSponsor,
+} = require('../models/sponsorModel');
+const container = () => getContainer('Sponsors');
+
+const addSponsor = async (req, res, next) => {
+  try {
+    const {
+      name,
+      industry,
+      contactPerson,
+      email,
+      phone,
+      address,
+      logoUrl,
+    } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name and email are required' });
     }
-  };
-  
-  const viewSponsor = async (req, res, next) => {
-    try {
-      const sponsor = await getSponsorById(req.params.id);
-      if (!sponsor) return res.status(404).json({ message: 'Sponsor not found' });
-      res.json(sponsor);
-    } catch (err) {
-      next(err);
-    }
-  };
-  
-  const addSponsor = async (req, res, next) => {
-    try {
-      const sponsor = await createSponsor(req.body);
-      res.status(201).json({ message: 'Sponsor added', sponsor });
-    } catch (err) {
-      next(err);
-    }
-  };
-  
-  const editSponsor = async (req, res, next) => {
-    try {
-      const sponsor = await updateSponsor(req.params.id, req.body);
-      res.json({ message: 'Sponsor updated', sponsor });
-    } catch (err) {
-      next(err);
-    }
-  };
-  
-  const removeSponsor = async (req, res, next) => {
-    try {
-      const sponsor = await deactivateSponsor(req.params.id);
-      res.json({ message: 'Sponsor deactivated', sponsor });
-    } catch (err) {
-      next(err);
-    }
-  };
-  
-  module.exports = {
-    listSponsors,
-    viewSponsor,
-    addSponsor,
-    editSponsor,
-    removeSponsor,
-  };
-  
+
+    const sponsorData = {
+      id: `${Date.now()}-${email}`,
+      name,
+      industry,
+      contactPerson,
+      email,
+      phone,
+      address,
+      logoUrl,
+      createdAt: new Date().toISOString(),
+    };
+
+    const { resource } = await container().items.create(sponsorData);
+    res.status(201).json(resource);
+  } catch (err) {
+    next(err);
+  }
+};
+// Fetch sponsor by email
+const handleFetchSponsor = async (req, res, next) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ message: 'Email is required' });
+
+    const sponsor = await getSponsorByEmail(email);
+    if (!sponsor) return res.status(404).json({ message: 'Sponsor not found' });
+
+    res.json(sponsor);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Update sponsor
+const handleUpdateSponsor = async (req, res, next) => {
+  try {
+    const { email } = req.params;
+    if (!email) return res.status(400).json({ message: 'Email is required in URL' });
+
+    const updatedData = req.body;
+
+    const sponsor = await updateSponsor(email, updatedData);
+    res.json(sponsor);
+  } catch (err) {
+    next(err);
+  }
+};
+module.exports = {
+  addSponsor,
+  handleUpdateSponsor,
+  handleFetchSponsor
+};

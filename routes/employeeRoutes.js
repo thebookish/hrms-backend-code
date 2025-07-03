@@ -12,7 +12,7 @@ const {
   disableEmployee,
 } = require('../controllers/employeeController');
 const {authenticate, protect, isAdmin } = require('../middleware/authMiddleware');
-const upload = require('../middleware/uploadMiddleware');
+const {uploadEmp} = require('../middleware/uploadMiddleware');
 const { getEmployeeByEmail } = require('../models/employeeModel');
 // Admin-only routes
 router.use(protect);
@@ -23,12 +23,19 @@ router.put('/verify',  isAdmin,approveEmployee);
 router.put('/decline',  isAdmin,declineEmployee);
 router.put('/edit',  isAdmin,editEmployee);
 router.get('/emp-data', getEmployeeByEmail);
-router.post(  
+// Upload employee documents (passport, sponsor, etc.)
+router.post(
   '/apply',
   authenticate,
-  upload.fields([
+  uploadEmp.fields([
     { name: 'passport', maxCount: 1 },
-    { name: 'sponsor', maxCount: 1 }
+    { name: 'sponsor', maxCount: 1 },
+    { name: 'cv', maxCount: 1 },
+    { name: 'visa', maxCount: 1 },
+    { name: 'eid', maxCount: 1 },
+    { name: 'cert', maxCount: 1 },
+    { name: 'ref', maxCount: 1 },
+    { name: 'photo', maxCount: 1 }
   ]),
   addEmployee
 );

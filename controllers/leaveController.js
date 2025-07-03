@@ -12,31 +12,60 @@ const {
   
   const applyLeave = async (req, res, next) => {
     try {
-      const { name, email, type, fromDate, toDate, reason, status = 'Pending' } = req.body;
-  
-      if (!email || !type || !fromDate || !toDate || !reason) {
-        return res.status(400).json({ message: 'Missing required fields' });
-      }
-  
-      // Leave data
-      const leaveData = {
+      const {
         name,
         email,
         type,
+        reason,
         fromDate,
         toDate,
+        noOfDays,
+        whatsapp,
+        emergencyContact,
+        substituteName,
+        substituteContact,
+        signature,
+        designation,
+        wing,
+        status = 'Pending',
+      } = req.body;
+  
+      // Validate required fields
+      if (!name || !email || !type || !reason || !fromDate || !toDate) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+  
+      const leaveData = {
+        id: `${Date.now()}-${email}`,
+        name,
+        email,
+        type,
         reason,
+        fromDate,
+        toDate,
+        noOfDays,
+        whatsapp,
+        emergencyContact,
+        substituteName,
+        substituteContact,
+        signature,
+        designation,
+        wing,
         status,
         requestedAt: new Date().toISOString(),
       };
   
       const newLeave = await createLeaveRequest(leaveData);
   
-      res.status(201).json({ message: 'Leave request submitted', leave: newLeave });
+      res.status(201).json({
+        message: 'Leave request submitted successfully',
+        leave: newLeave,
+      });
     } catch (err) {
       next(err);
     }
   };
+  
   const getLeaves = async (req, res, next) => {
     try {
       const { email } = req.query;

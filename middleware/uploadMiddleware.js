@@ -1,24 +1,62 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-// Configure storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/profile_pics/'); // create this folder
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${file.fieldname}${ext}`);
+// Ensure upload directories exist
+const ensureDir = (dir) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
-});
-
-// File filter
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/png'];
-  if (allowedTypes.includes(file.mimetype)) cb(null, true);
-  else cb(new Error('Only JPEG or PNG files are allowed'), false);
 };
 
-const upload = multer({ storage });
+// General function for generating filenames
+const generateFilename = (file, cb) => {
+  const ext = path.extname(file.originalname);
+  cb(null, `${Date.now()}-${file.fieldname}${ext}`);
+};
 
-module.exports = upload;
+// Profile Picture Storage
+const profilePicsDir = 'uploads/profile_pics/';
+ensureDir(profilePicsDir);
+
+const storageProfile = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, profilePicsDir),
+  filename: (req, file, cb) => generateFilename(file, cb)
+});
+
+// Employee Document Storage
+const employeeDir = 'uploads/employees/';
+ensureDir(employeeDir);
+
+const storageEmployee = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, employeeDir),
+  filename: (req, file, cb) => generateFilename(file, cb)
+});
+
+// File filter for images only
+const imageFileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed'), false);
+  }
+};
+
+// File filter for documents (optional for employee files)
+const docFileFilter = (req, file, cb) => {
+  const allowedTypes = [
+    'image/jpeg', 'image/png', 'application/pdf',
+    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  if (allowedTypes.includes(file.mimetype)) cb(null, true);
+  else cb(new Error('Invalid file type'), false);
+};
+
+// Create multer instances
+const upload = multer({ storage: storageProfile, });
+const uploadEmp = multer({ storage: storageEmployee, });
+
+module.exports = {
+  upload,
+  uploadEmp
+};

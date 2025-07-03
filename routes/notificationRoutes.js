@@ -1,22 +1,17 @@
-// notificationRoutes.js
+// routes/notificationRoutes.js
 const express = require('express');
-const router = express.Router();
 const {
-  listNotificationPreferences,
-  getOwnPreference,
-  setPreference,
+  handleSendNotification,
+  handleFetchNotifications,
+  handleMarkAllRead,
+  savePlayerId
 } = require('../controllers/notificationController');
-const { protect, isAdmin } = require('../middleware/authMiddleware');
 
-// Auth required
-router.use(protect);
-
-// Employees: view/set own
-router.get('/me', getOwnPreference);
-router.post('/me', setPreference);
-
-// Admin: view/set for others
-router.get('/', isAdmin, listNotificationPreferences);
-router.post('/', isAdmin, setPreference);
+const router = express.Router();
+// Save user's OneSignal player ID
+router.post('/player-id', savePlayerId);
+router.get('/', handleFetchNotifications); // ?email=...
+router.post('/send', handleSendNotification);
+router.put('/mark-all-read', handleMarkAllRead);
 
 module.exports = router;

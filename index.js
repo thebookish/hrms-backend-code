@@ -9,6 +9,9 @@ const leaveRoutes = require('./routes/leaveRoutes');
 const userRoutes = require('./routes/userRoute');
 const taskRoutes = require('./routes/taskRoutes');
 const salaryRoutes = require('./routes/salaryRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const sponsorRoutes = require('./routes/sponsorRoutes');
+const familyRoutes = require('./routes/familyRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
@@ -30,6 +33,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/leaves', leaveRoutes)
 app.use('/api/tasks', taskRoutes);
 app.use('/api/salary-info', salaryRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/sponsors', sponsorRoutes);
+app.use('/api/family', familyRoutes);
 
 // Error Handling
 app.use(errorHandler);

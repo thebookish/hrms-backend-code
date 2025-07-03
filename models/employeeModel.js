@@ -24,41 +24,88 @@ const getEmployeeByEmail = async (req, res, next) => {
     const user = await findEmployeeByEmail(email);
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Employee not found' });
     }
 
-    // Build the response data based on your schema
     const employeeData = {
-      fullName: user.fullName || '',
-      phone: user.phone || '',
-      email: user.email || '',
+      // Personal Info
+      firstName: user.firstName || '',
+      surname: user.surname || '',
       dob: user.dob || '',
-      family: user.family || '',
-      emergency: user.emergency || '',
-      nationality: user.nationality || '',
       gender: user.gender || '',
-      id: user.id || '',
+      maritalStatus: user.maritalStatus || '',
+      presentAddress: user.presentAddress || '',
+      permanentAddress: user.permanentAddress || '',
+      passportNo: user.passportNo || '',
+      emirateIdNo: user.emirateIdNo || '',
+      eidIssue: user.eidIssue || '',
+      eidExpiry: user.eidExpiry || '',
+      passportIssue: user.passportIssue || '',
+      passportExpiry: user.passportExpiry || '',
+      visaNo: user.visaNo || '',
+      visaExpiry: user.visaExpiry || '',
+      visaType: user.visaType || '',
       sponsor: user.sponsor || '',
+
+      // Job Info
+      position: user.position || '',
+      wing: user.wing || '',
+      homeLocal: user.homeLocal || '',
       joinDate: user.joinDate || '',
-      endDate: user.endDate || '',
-      jobType: user.jobType || '',
+      retireDate: user.retireDate || '',
+
+      // Contact Info
+      landPhone: user.landPhone || '',
+      mobile: user.mobile || '',
+      email: user.email || '',
+      altMobile: user.altMobile || '',
+      botim: user.botim || '',
+      whatsapp: user.whatsapp || '',
+      emergency: user.emergency || '',
+
+      // Salary Info
       bank: user.bank || '',
-      salary: user.salary || '',
-      sickLeave: user.sickLeave||'',
-      casualLeave: user.casualLeave||'',
-      paidLeave: user.paidLeave||'',
-      passportPath: user.passportPath || null,
-      sponsorPath: user.sponsorPath || null,
-      status: user.status || 'pending', // include status if available
-      // profilePic: user.profilePic || null, // optional field if used in UI
+      accountNo: user.accountNo || '',
+      accountName: user.accountName || '',
+      iban: user.iban || '',
+
+      // Emergency Contact
+      emergencyName: user.emergencyName || '',
+      emergencyRelation: user.emergencyRelation || '',
+      emergencyPhone: user.emergencyPhone || '',
+      emergencyEmail: user.emergencyEmail || '',
+      emergencyBotim: user.emergencyBotim || '',
+      emergencyWhatsapp: user.emergencyWhatsapp || '',
+
+      // Family Info
+      spouseName: user.spouseName || '',
+      children: user.children || '',
+      childDetails: user.childDetails || [],
+
+      // Uploaded Files
+      photo: user.photo || '',
+      passport: user.passport || '',
+      eid: user.eid || '',
+      visa: user.visa || '',
+      cv: user.cv || '',
+      cert: user.cert || '',
+      ref: user.ref || '',
+
+      // Leave Info
+      sickLeave: user.sickLeave || 0,
+      casualLeave: user.casualLeave || 0,
+      paidLeave: user.paidLeave || 0,
+
+      status: user.status || 'pending',
     };
 
     return res.status(200).json(employeeData);
   } catch (err) {
-    // next(err);
-    console.log('isuee: '+err);
+    console.error('Error fetching employee:', err);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 const findEmployeeByEmail = async (email) => {
   const { resources } = await container().items

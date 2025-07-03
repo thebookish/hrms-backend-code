@@ -122,5 +122,27 @@ const updatePassword = async (email, hashed) => {
     console.log("errosss:"+err)
   }
 };
+const setPlayerId = async (email, playerId) => {
+  const { resources } = await userContainer().items
+    .query({
+      query: 'SELECT * FROM c WHERE c.email = @e',
+      parameters: [{ name: '@e', value: email }],
+    }).fetchAll();
+  const user = resources[0];
+  if (!user) throw new Error('User not found');
+  
+  user.playerId = playerId;
+  const { resource } = await userContainer().items.upsert(user);
+  return resource;
+};
 
-module.exports = { findUserByEmail, updateUserProfile,updateUserProfilePic , createUser, setResetOtp , findUserByOtp, setResetToken,updatePassword };
+const getPlayerId = async (email) => {
+  const { resources } = await userContainer().items
+    .query({
+      query: 'SELECT c.playerId FROM c WHERE c.email = @e',
+      parameters: [{ name: '@e', value: email }],
+    }).fetchAll();
+  return resources[0]?.playerId;
+};
+
+module.exports = { setPlayerId ,getPlayerId,findUserByEmail, updateUserProfile,updateUserProfilePic , createUser, setResetOtp , findUserByOtp, setResetToken,updatePassword };

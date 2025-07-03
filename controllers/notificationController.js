@@ -1,48 +1,90 @@
-// notificationController.js
+// controllers/notificationController.js
+// const {fetch} = require('node-fetch');
+const axios = require('axios');
 const {
-    getAllPreferences,
-    getPreferenceByEmployeeId,
-    upsertPreference,
-  } = require('../models/notificationModel');
-  
-  // Admin: View all preferences
-  const listNotificationPreferences = async (req, res, next) => {
-    try {
-      const prefs = await getAllPreferences();
-      res.json(prefs);
-    } catch (err) {
-      next(err);
+  sendNotification,
+  getNotificationsByEmail,
+  getAllNotifications,
+  markAllAsRead,
+} = require('../models/notificationModel');
+const { setPlayerId, getPlayerId } = require('../models/userModel');
+const ONE_SIGNAL_APP_ID = '6020aad9-e6e5-45bd-b600-64deaeb81b69';
+const ONE_SIGNAL_REST_KEY = 'os_v2_app_maqkvwpg4vc33nqamtpk5oa3ngc6waq64jheeb5vnjkvb5irjpxdvojxqv673fmc4c7jvfnyhkwph7iowfuej64xmufzljcduvoepei';
+const savePlayerId = async (req, res, next) => {
+  try {
+    const { email, playerId } = req.body;
+    if (!email || !playerId) return res.status(400).json({ message: 'Missing field' });
+
+    await setPlayerId(email, playerId);
+    res.status(200).json({ message: 'Player ID saved' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const handleSendNotification = async (req, res, next) => {
+  try {
+    const { title, message, email } = req.body;
+    if (!title || !message || !email) {
+      return res.status(400).json({ message: 'Missing field' });
     }
-  };
-  
-  // Employee: View own preferences
-  const getOwnPreference = async (req, res, next) => {
-    try {
-      const pref = await getPreferenceByEmployeeId(req.user.id);
-      res.json(pref || {});
-    } catch (err) {
-      next(err);
+
+    // Save to internal DB (optional step)
+    await sendNotification({ title, message, email });
+
+    // Get OneSignal player ID
+    const playerId = await getPlayerId(email);
+
+    if (playerId) {
+      await axios.post('https://onesignal.com/api/v1/notifications', {
+        app_id: ONE_SIGNAL_APP_ID,
+        include_player_ids: [playerId],
+        headings: { en: title },
+        contents: { en: message },
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${ONE_SIGNAL_REST_KEY}`,
+        },
+      });
     }
-  };
-  
-  // Admin/Employee: Set/update preferences
-  const setPreference = async (req, res, next) => {
-    try {
-      const data = {
-        employeeId: req.user.role === 'admin' ? req.body.employeeId : req.user.id,
-        channels: req.body.channels, // e.g., ['email', 'push']
-        reminderDays: req.body.reminderDays, // e.g., [1, 3, 7]
-      };
-      const saved = await upsertPreference(data);
-      res.status(201).json({ message: 'Preferences saved', saved });
-    } catch (err) {
-      next(err);
+
+    res.status(201).json({ message: 'Notification sent' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const handleFetchNotifications = async (req, res, next) => {
+  try {
+    const { email } = req.query;
+    if (email) {
+      const list = await getNotificationsByEmail(email);
+      return res.json(list);
+    } else {
+      const list = await getAllNotifications();
+      return res.json(list);
     }
-  };
-  
-  module.exports = {
-    listNotificationPreferences,
-    getOwnPreference,
-    setPreference,
-  };
-  
+  } catch (err) {
+    next(err);
+  }
+};
+
+const handleMarkAllRead = async (req, res, next) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ message: 'Email required' });
+
+    await markAllAsRead(email);
+    res.json({ message: 'All notifications marked as read' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {
+  handleSendNotification,
+  handleFetchNotifications,
+  handleMarkAllRead,
+  savePlayerId 
+};

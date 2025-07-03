@@ -35,5 +35,15 @@ const sendResetEmail = async (to, otp) => {
 
   await transporter.sendMail(mailOptions);
 };
+const sendEmail = async (to, subject, text) => {
+  const mailOptions = {
+    from: `"HRMS App" <${process.env.SMTP_USER}>`,
+    to,
+    subject,
+    text,
+  };
 
-module.exports = { sendResetEmail };
+  await transporter.sendMail(mailOptions);
+};
+
+module.exports = { sendResetEmail , sendEmail};

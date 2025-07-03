@@ -3,9 +3,9 @@ const { findUserByEmail, createUser } = require('../models/userModel');
 const { hashPassword, comparePassword } = require('../utils/hash');
 const { generateToken } = require('../utils/token');
 const crypto = require('crypto');
-const { sendResetEmail } = require('../utils/email'); // You'll create this
+const { sendResetEmail,sendEmail } = require('../utils/email'); // You'll create this
 const { updatePassword, findUserByOtp, setResetOtp} = require('../models/userModel');
-
+const { setOtp, getOtp, deleteOtp } = require('../models/otpModel');
 const register = async (req, res, next) => {
   try {
     const {
@@ -55,6 +55,51 @@ const register = async (req, res, next) => {
     next(err);
   }
 };
+// Generate a random 6-digit OTP
+const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+const sendOtp = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+
+  const otp = generateOtp();
+  setOtp(email, otp);
+
+  try {
+    await sendEmail(email, 'Your OTP Code', `Your OTP is: ${otp}`);
+    res.status(200).json({ message: 'OTP sent to email' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to send OTP', error: error.message });
+  }
+};
+
+const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  // ✅ Await the promise
+  const record = await getOtp(email);
+  console.log(email);
+
+  console.log('Type of record:', typeof record);
+  console.log('Raw record:', record);
+
+  if (!record || typeof record !== 'object') {
+    return res.status(400).json({ message: 'OTP expired or not found' });
+  }
+
+  if (Date.now() > record.expiresAt) {
+    await deleteOtp(email);
+    return res.status(400).json({ message: 'OTP expired' });
+  }
+
+  if (String(record.otp) === String(otp)) {
+    await deleteOtp(email);
+    return res.status(200).json({ message: 'OTP verified' });
+  } else {
+    return res.status(400).json({ message: 'Invalid OTP' });
+  }
+};
+
 
 
 const login = async (req, res, next) => {
@@ -111,9 +156,46 @@ const resetPasswordWithOtp = async (req, res, next) => {
   }
 };
 
+// Change Password
+const changePassword = async (req, res, next) => {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+
+    if (!email || !oldPassword || !newPassword) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const user = await findUserByEmail(email);
+
+    const isMatch = await comparePassword(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Old password is incorrect' });
+    }
+
+    const hashedNewPassword = await hashPassword(newPassword);
+    // user.password = hashedNewPassword;
+
+    await updatePassword(email, hashedNewPassword);
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const logout = async (req, res, next) => {
+  try {
+    res.status(200).json({ message: 'Logout successful (stateless)' });
+  } catch (err) {
+    next(err);
+  }
+};
 module.exports = {
   register,
+  sendOtp,
+  verifyOtp,
   login,
+  logout,
+  changePassword,
   forgotPassword,
   resetPasswordWithOtp
 };
