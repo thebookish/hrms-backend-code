@@ -41,7 +41,7 @@ const getUserByEmail = async (req, res, next) => {
       role,
     } = user;
     const profilePicUrl = profilePic
-    ? `http://10.0.2.2:5000${profilePic}`
+    ? `https://backend-hrm-cwbfc6cwbwbbdhae.southeastasia-01.azurewebsites.net${profilePic}`
     : '';
     res.status(200).json({
       id,
